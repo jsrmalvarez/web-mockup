@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Cool App Name - Window Blinds</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body { 
+      background-color: #f4f4f4; 
+      margin-bottom: 60px; /* Space for the status bar */
+    }
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #333;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+    .blinds-control {
+      display: flex;
+      align-items: center;
+      margin-right: 10px;
+      padding: 5px;
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .blinds-list {
+      display: flex;
+      overflow-x: auto;
+      padding: 20px 0;
+      -ms-overflow-style: none; /* IE and Edge */
+      scrollbar-width: none; /* Firefox */
+      user-select: none;
+      -webkit-user-drag: none;
+      touch-action: pan-x;
+    }
+
+    .blinds-list::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera*/
+    }
+
+    .blinds-title {
+      flex-grow: 1; /* Allow the title button to grow */
+      margin-right: 10px; /* Spacing between title and arrow buttons */
+      min-width:150px;
+      min-height:100px;
+      background-color: #aaf;
+    }
+    .arrow-buttons {
+      display: flex;
+      flex-direction: column;
+    }
+    .arrow-button {
+      width: 50px; /* Fixed width for arrow buttons */
+      margin-bottom:5px;
+    }
+    .window-blinds-title {
+      font-size: 2em;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .back-button-container {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1000; /* Ensure it's above other elements */
+    }
+  </style>
+</head>
+<body>
+<div class="back-button-container">
+  <button onclick="history.back()" class="btn btn-secondary">←</button>
+</div>
+<div class="container">
+  <div class="window-blinds-title">🪟 Window Blinds</div>
+  <div class="blinds-list">
+    <div class="blinds-control">
+      <button class="btn btn-light blinds-title">All hallway blinds</button>
+      <div class="arrow-buttons">
+        <button class="btn btn-primary arrow-button">↑</button>
+        <button class="btn btn-primary arrow-button">↓</button>
+      </div>
+    </div>
+    <!-- Repeat for each room -->
+    <div class="blinds-control">
+      <button class="btn btn-light blinds-title" onclick="location.href='blind_group.html'">All Room C blinds</button>
+      <div class="arrow-buttons">
+        <button class="btn btn-primary arrow-button">↑</button>
+        <button class="btn btn-primary arrow-button">↓</button>
+      </div>
+    </div>
+    <!-- ... More rooms ... -->
+    <div class="blinds-control">
+      <button class="btn btn-light blinds-title">All room D blinds</button>
+      <div class="arrow-buttons">
+        <button class="btn btn-primary arrow-button">↑</button>
+        <button class="btn btn-primary arrow-button">↓</button>
+      </div>
+    </div>
+    <div class="blinds-control">
+      <button class="btn btn-light blinds-title">All Big Room blinds</button>
+      <div class="arrow-buttons">
+        <button class="btn btn-primary arrow-button">↑</button>
+        <button class="btn btn-primary arrow-button">↓</button>
+      </div>
+    </div>
+    <div class="blinds-control">
+      <button class="btn btn-light blinds-title">All Corridor blinds</button>
+      <div class="arrow-buttons">
+        <button class="btn btn-primary arrow-button">↑</button>
+        <button class="btn btn-primary arrow-button">↓</button>
+      </div>
+    </div>
+    <div class="blinds-control">
+      <button class="btn btn-light blinds-title">All Meeting room blinds</button>
+      <div class="arrow-buttons">
+        <button class="btn btn-primary arrow-button">↑</button>
+        <button class="btn btn-primary arrow-button">↓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="status-bar">
+  Status: Connected
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const slider = document.querySelector('.blinds-list');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    let velocity;
+    let frame;
+    let timestamp;
+    let ticker;
+
+    const track = () => {
+      let now = Date.now();
+      let elapsed = now - timestamp;
+      timestamp = now;
+
+      let delta = slider.scrollLeft - frame;
+      frame = slider.scrollLeft;
+
+      velocity = 1000 * delta / (1 + elapsed);
+
+      if (isDown) {
+        requestAnimationFrame(track);
+      }
+    };
+
+    slider.addEventListener('mousedown', (e) => {
+      isDown = true;
+      startX = e.pageX - slider.offsetLeft;
+      scrollLeft = slider.scrollLeft;
+      slider.classList.add('active');
+      slider.style.scrollBehavior = 'auto';
+
+      frame = slider.scrollLeft;
+      timestamp = Date.now();
+      clearInterval(ticker);
+      ticker = setInterval(track, 100);
+
+      e.preventDefault();
+    });
+
+    slider.addEventListener('mouseleave', () => {
+      isDown = false;
+      slider.classList.remove('active');
+      clearInterval(ticker);
+    });
+
+    slider.addEventListener('mouseup', () => {
+      isDown = false;
+      slider.classList.remove('active');
+      clearInterval(ticker);
+
+      animate();
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+
+      e.preventDefault();
+      const x = e.pageX - slider.offsetLeft;
+      const walk = (x - startX); // the * 2 is the speed of the drag
+      slider.scrollLeft = scrollLeft - walk;
+    });
+
+    // Touch events
+    slider.addEventListener('touchstart', (e) => {
+      isDown = true;
+      startX = e.targetTouches[0].pageX - slider.offsetLeft;
+      scrollLeft = slider.scrollLeft;
+      slider.classList.add('active');
+      slider.style.scrollBehavior = 'auto';
+
+      frame = slider.scrollLeft;
+      timestamp = Date.now();
+      clearInterval(ticker);
+      ticker = setInterval(track, 100);
+
+      e.preventDefault();
+    });
+
+    slider.addEventListener('touchend', () => {
+      isDown = false;
+      slider.classList.remove('active');
+      clearInterval(ticker);
+
+      animate();
+    });
+
+    slider.addEventListener('touchmove', (e) => {
+      if (!isDown) return;
+
+      e.preventDefault();
+      const x = e.targetTouches[0].pageX - slider.offsetLeft;
+      const walk = (x - startX); // the * 2 is the speed of the drag
+      slider.scrollLeft = scrollLeft - walk;
+    });
+
+    const animate = () => {
+      slider.scrollLeft += velocity;
+      velocity *= 0.95;
+
+      if (Math.abs(velocity) > 0.5) {
+        requestAnimationFrame(animate);
+      }
+    };
+  });
+</script>
+
+
+</html>
+
